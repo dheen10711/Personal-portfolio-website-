@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advanced Portfolio</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 1rem;
+    }
+
+    header h1 {
+      margin: 0;
+    }
+
+    nav {
+      margin-top: 0.5rem;
+    }
+
+    nav a {
+      margin-right: 1em;
+      color: #ddd;
+      text-decoration: none;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    main {
+      padding: 2rem;
+    }
+
+    .section {
+      margin: 2rem 0;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    input, button, select {
+      padding: 0.5em;
+      margin: 0.5em 0;
+      font-size: 1rem;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      background: #eee;
+      margin: 0.5em 0;
+      padding: 0.5em;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .product {
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+
+    .controls {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background: #222;
+      color: #fff;
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 600px) {
+      .controls {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>My Advanced Portfolio</h1>
+    <nav>
+      <a href="#about">About</a>
+      <a href="#projects">Projects</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="about" class="section">
+      <h2>About Me</h2>
+      <p>I am a full-stack web developer with a strong foundation in modern HTML, CSS, and JavaScript frameworks.</p>
+    </section>
+
+    <section id="projects" class="section">
+      <h2>Projects</h2>
+
+      <div class="container" id="todoApp">
+        <h3>To-Do List</h3>
+        <input type="text" id="todoInput" placeholder="Enter a task" />
+        <button id="addTodoBtn">Add Task</button>
+        <ul id="todoList"></ul>
+      </div>
+
+      <div class="container" id="productApp">
+        <h3>Product Listing</h3>
+        <div class="controls">
+          <select id="categoryFilter">
+            <option value="all">All Categories</option>
+            <option value="tech">Tech</option>
+            <option value="clothing">Clothing</option>
+          </select>
+
+          <select id="sortOption">
+            <option value="default">Sort by</option>
+            <option value="price">Price</option>
+            <option value="rating">Rating</option>
+          </select>
+        </div>
+        <div id="productList"></div>
+      </div>
+    </section>
+
+    <section id="contact" class="section">
+      <h2>Contact</h2>
+      <p>Email: developer@example.com</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 My Advanced Portfolio</p>
+  </footer>
+
+  <script>
+    // TO-DO MODULE
+    (() => {
+      const todoInput = document.getElementById("todoInput");
+      const todoList = document.getElementById("todoList");
+      const addBtn = document.getElementById("addTodoBtn");
+
+      const getTodos = () => JSON.parse(localStorage.getItem("todos")) || [];
+
+      const renderTodos = () => {
+        const todos = getTodos();
+        todoList.innerHTML = "";
+        todos.forEach((task, index) => {
+          const li = document.createElement("li");
+          li.textContent = task;
+          li.setAttribute("data-index", index);
+          todoList.appendChild(li);
+        });
+      };
+
+      const addTodo = () => {
+        const task = todoInput.value.trim();
+        if (task) {
+          const todos = getTodos();
+          todos.push(task);
+          localStorage.setItem("todos", JSON.stringify(todos));
+          todoInput.value = "";
+          renderTodos();
+        }
+      };
+
+      const removeTodo = (index) => {
+        const todos = getTodos();
+        todos.splice(index, 1);
+        localStorage.setItem("todos", JSON.stringify(todos));
+        renderTodos();
+      };
+
+      addBtn.addEventListener("click", addTodo);
+      todoList.addEventListener("click", e => {
+        if (e.target.tagName === "LI") {
+          const index = e.target.getAttribute("data-index");
+          removeTodo(index);
+        }
+      });
+
+      renderTodos();
+    })();
+
+    // PRODUCT MODULE
+    (() => {
+      const products = [
+        { name: "Smartphone", category: "tech", price: 699, rating: 4.5 },
+        { name: "T-Shirt", category: "clothing", price: 29, rating: 4.2 },
+        { name: "Laptop", category: "tech", price: 1200, rating: 4.8 },
+        { name: "Jeans", category: "clothing", price: 60, rating: 4.1 },
+      ];
+
+      const categoryFilter = document.getElementById("categoryFilter");
+      const sortOption = document.getElementById("sortOption");
+      const productList = document.getElementById("productList");
+
+      let currentCategory = "all";
+      let currentSort = "default";
+
+      const filterAndSortProducts = () => {
+        let filtered = [...products];
+
+        if (currentCategory !== "all") {
+          filtered = filtered.filter(p => p.category === currentCategory);
+        }
+
+        if (currentSort === "price") {
+          filtered.sort((a, b) => a.price - b.price);
+        } else if (currentSort === "rating") {
+          filtered.sort((a, b) => b.rating - a.rating);
+        }
+
+        renderProducts(filtered);
+      };
+
+      const renderProducts = (list) => {
+        productList.innerHTML = "";
+        list.forEach(({ name, category, price, rating }) => {
+          const div = document.createElement("div");
+          div.className = "product";
+          div.innerHTML = `
+            <strong>${name}</strong><br>
+            Category: ${category}<br>
+            Price: $${price}<br>
+            Rating: ${rating}
+          `;
+          productList.appendChild(div);
+        });
+      };
+
+      categoryFilter.addEventListener("change", e => {
+        currentCategory = e.target.value;
+        filterAndSortProducts();
+      });
+
+      sortOption.addEventListener("change", e => {
+        currentSort = e.target.value;
+        filterAndSortProducts();
+      });
+
+      renderProducts(products);
+    })();
+  </script>
+</body>
+</html>
